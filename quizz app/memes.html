@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purple Quiz Experience</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background:plum;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+
+        .quiz-container {
+            background:blueviolet;
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 50px;
+            border-color: black;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+            text-align: center;
+        }
+
+        h2 { margin-bottom: 20px; font-weight: 300;font-family:"lobster",cursive;font-size: 6.5 rem; }
+
+        .question-text {
+            font-size: 2.0rem;
+            margin-bottom: 30px;
+            min-height: 60px;
+        }
+
+        /* Radio Group Styling */
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .option-label {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px 25px;
+            border-radius: 50px; /* Pill Shape */
+            cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.2);
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-label:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        input[type="radio"] {
+            margin-right: 15px;
+            accent-color: rgb(15, 214, 15); /* Purple radio button */
+            transform: scale(1.2);
+        }
+
+        /* Navigation Buttons */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+
+        .btn-prev { background: #555; color: white; }
+        .btn-next { background: #f806cc; color: white; }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+
+        #score-card { display: none; }
+        .score-val { font-size: 3rem; color: #f806cc; display: block; margin: 20px 0; }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="quiz">
+        <h2 id="category-title">Memes and Internet Culture</h2>
+        <div id="question-box">
+            <p class="question-text" id="question">Loading question...</p>
+            <div class="options-container" id="options"></div>
+        </div>
+
+        <div class="nav-buttons">
+            <button class="btn btn-prev" id="prevBtn" onclick="changeQuestion(-1)">Previous</button>
+            <button class="btn btn-next" id="nextBtn" onclick="changeQuestion(1)">Next</button>
+        </div>
+    </div>
+
+    <div class="quiz-container" id="score-card">
+        <h2>Quiz Complete!</h2>
+        <p>Your Final Score:</p>
+        <span class="score-val" id="final-score">0/10</span>
+        <button class="btn btn-next" onclick="location.reload()">Restart Quiz</button>
+    </div>
+
+    <script>
+        const quizData=[
+           { q:"What does “LOL” stand for?", a: ["Lots of Love", "Laugh Out Loud", "Laughing On Line", "Lots of Laugh"], correct: 1 },
+            { q:"Which meme features a dog saying “such wow”?", a: ["Grumpy Cat", "Doge", "Cheems", "Shiba Smile"], correct: 1 },
+            { q:"What is the name of the meme with a distracted boyfriend?", a: ["Distracted Boyfriend", "Cheating Guy", "Looking Away Guy", "Gazing Guy"], correct: 0 },
+            { q:"Which meme features a cat sitting at a dinner table?", a: ["Grumpy Cat", "Smudge the Cat", "Table Cat", "Dinner Cat"], correct: 1 },
+            { q:"What does “FOMO” stand for?", a: ["Fear Of Missing Out", "Fun Of My Own", "Feeling Of Missing Out", "Fear Of My Own"], correct: 0 },
+            { q:"Which meme is known for the phrase “This is fine” with a dog sitting in fire?", a: ["This is Fine Dog", "Fire Dog", "Calm Dog", "Burning Dog"], correct: 0 },
+            { q:"What does “SMH” stand for?", a: ["Shaking My Head", "So Much Hate", "Sad My Heart", "Shaking My Hand"], correct: 0 },
+            { q:"Which meme shows a boyfriend looking at another girl while his girlfriend is angry?", a: ["Distracted Boyfriend", "Cheating Guy", "Looking Away Guy", "Gazing Guy"], correct: 0 },
+            { q:"What does “YOLO” stand for?", a: ["You Only Live Once", "Your Own Life Only", "You Often Laugh Out", "Your Only Laugh Once"], correct: 0 },
+            { q:"hich app is most famous for short viral videos and trends?", a: ["WhatsApp", "TikTok", "LinkedIn", "Gmail"], correct: 1 }  
+            
+
+        ];
+        let currentIdx = 0;
+        let userAnswers = new Array(quizData.length).fill(null);
+
+        function loadQuestion() {
+            const q = quizData[currentIdx];
+            document.getElementById("question").innerText = q.q;
+            const optionsDiv = document.getElementById("options");
+            optionsDiv.innerHTML = "";
+
+            q.a.forEach((opt, i) => {
+                const checked = userAnswers[currentIdx] === i ? "checked" : "";
+                optionsDiv.innerHTML += `
+                    <label class="option-label">
+                        <input type="radio" name="answer" value="${i}" ${checked} onchange="saveAnswer(${i})">
+                        ${opt}
+                    </label>
+                `;
+            });
+
+            document.getElementById("prevBtn").disabled = currentIdx === 0;
+            document.getElementById("nextBtn").innerText = currentIdx === quizData.length - 1 ? "Finish" : "Next";
+        }
+
+        function saveAnswer(index) {
+            userAnswers[currentIdx] = index;
+        }
+
+        function changeQuestion(step) {
+            if (step === 1 && currentIdx === quizData.length - 1) {
+                showScore();
+                return;
+            }
+            currentIdx += step;
+            loadQuestion();
+        }
+
+        function showScore() {
+            let score = 0;
+            userAnswers.forEach((ans, i) => {
+                if (ans === quizData[i].correct) score++;
+            });
+            document.getElementById("quiz").style.display = "none";
+            document.getElementById("score-card").style.display = "block";
+            document.getElementById("final-score").innerText = `${score} / ${quizData.length}`;
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>

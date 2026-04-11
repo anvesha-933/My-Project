@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purple Quiz Experience</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background:plum;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+
+        .quiz-container {
+            background:blueviolet;
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 50px;
+            border-color: black;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+            text-align: center;
+        }
+
+        h2 { margin-bottom: 20px; font-weight: 300;font-family:"lobster",cursive;font-size: 6.5 rem; }
+
+        .question-text {
+            font-size: 2.0rem;
+            margin-bottom: 30px;
+            min-height: 60px;
+        }
+
+        /* Radio Group Styling */
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .option-label {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px 25px;
+            border-radius: 50px; /* Pill Shape */
+            cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.2);
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-label:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        input[type="radio"] {
+            margin-right: 15px;
+            accent-color: rgb(15, 214, 15); /* Purple radio button */
+            transform: scale(1.2);
+        }
+
+        /* Navigation Buttons */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+
+        .btn-prev { background: #555; color: white; }
+        .btn-next { background: #f806cc; color: white; }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+
+        #score-card { display: none; }
+        .score-val { font-size: 3rem; color: #f806cc; display: block; margin: 20px 0; }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="quiz">
+        <h2 id="category-title">World Facts</h2>
+        <div id="question-box">
+            <p class="question-text" id="question">Loading question...</p>
+            <div class="options-container" id="options"></div>
+        </div>
+
+        <div class="nav-buttons">
+            <button class="btn btn-prev" id="prevBtn" onclick="changeQuestion(-1)">Previous</button>
+            <button class="btn btn-next" id="nextBtn" onclick="changeQuestion(1)">Next</button>
+        </div>
+    </div>
+
+    <div class="quiz-container" id="score-card">
+        <h2>Quiz Complete!</h2>
+        <p>Your Final Score:</p>
+        <span class="score-val" id="final-score">0/10</span>
+        <button class="btn btn-next" onclick="location.reload()">Restart Quiz</button>
+    </div>
+
+    <script>
+        const quizData=[
+           
+  {
+    q: "Which is the largest continent in the world?",
+    a: ["Africa", "Asia", "Europe", "Antarctica"],
+    correct: 1
+  },
+  {
+    q: "Which country has the largest population?",
+    a: ["USA", "India", "China", "Russia"],
+    correct: 1
+  },
+  {
+    q: "Which is the longest river in the world?",
+    a: ["Amazon", "Nile", "Ganga", "Yangtze"],
+    correct: 1
+  },
+  {
+    q: "Which desert is the largest in the world?",
+    a: ["Sahara", "Gobi", "Arctic", "Kalahari"],
+    correct: 0
+  },
+  {
+    q: "Which ocean is the largest?",
+    a: ["Atlantic", "Indian", "Arctic", "Pacific"],
+    correct: 3
+  },
+  {
+    q: "Mount Everest is located in which mountain range?",
+    a: ["Andes", "Himalayas", "Alps", "Rockies"],
+    correct: 1
+  },
+  {
+    q: "Which country is known as the Land of the Rising Sun?",
+    a: ["China", "Japan", "Thailand", "Korea"],
+    correct: 1
+  },
+  {
+    q: "Which is the smallest country in the world?",
+    a: ["Monaco", "Maldives", "Vatican City", "Nepal"],
+    correct: 2
+  },
+  {
+    q: "Which continent is known as the Dark Continent?",
+    a: ["Asia", "Africa", "Australia", "Europe"],
+    correct: 1
+  },
+  {
+    q: "Which country has the most time zones?",
+    a: ["USA", "Russia", "France", "Australia"],
+    correct: 2
+  }
+]; 
+            
+
+        
+        let currentIdx = 0;
+        let userAnswers = new Array(quizData.length).fill(null);
+
+        function loadQuestion() {
+            const q = quizData[currentIdx];
+            document.getElementById("question").innerText = q.q;
+            const optionsDiv = document.getElementById("options");
+            optionsDiv.innerHTML = "";
+
+            q.a.forEach((opt, i) => {
+                const checked = userAnswers[currentIdx] === i ? "checked" : "";
+                optionsDiv.innerHTML += `
+                    <label class="option-label">
+                        <input type="radio" name="answer" value="${i}" ${checked} onchange="saveAnswer(${i})">
+                        ${opt}
+                    </label>
+                `;
+            });
+
+            document.getElementById("prevBtn").disabled = currentIdx === 0;
+            document.getElementById("nextBtn").innerText = currentIdx === quizData.length - 1 ? "Finish" : "Next";
+        }
+
+        function saveAnswer(index) {
+            userAnswers[currentIdx] = index;
+        }
+
+        function changeQuestion(step) {
+            if (step === 1 && currentIdx === quizData.length - 1) {
+                showScore();
+                return;
+            }
+            currentIdx += step;
+            loadQuestion();
+        }
+
+        function showScore() {
+            let score = 0;
+            userAnswers.forEach((ans, i) => {
+                if (ans === quizData[i].correct) score++;
+            });
+            document.getElementById("quiz").style.display = "none";
+            document.getElementById("score-card").style.display = "block";
+            document.getElementById("final-score").innerText = `${score} / ${quizData.length}`;
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Category </title>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Lobster', cursive;
+            /* Rich Purple Background */
+            background:rgb(126, 11, 233); 
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px 20px;
+            color: white;
+        }
+
+        h1 {
+            margin-bottom: 50px;
+            font-size: 5.5rem;
+            font-weight: 300;
+            text-transform: capitalize;
+            letter-spacing: 2px;
+        }
+
+        .category-grid {
+            display: grid;
+            /* 2 columns, equal width */
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 25px;
+            width: 100%;
+            max-width: 650px;
+        }
+
+        /* Styling Anchor Tags as Buttons */
+        .category-link {
+            background-color: yellow;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            
+            /* Circular Rectangle (Pill) Shape */
+            border-radius: 100px; 
+            
+            padding: 50px 60px;
+            color:rgb(126, 11, 233);
+            text-decoration: none; /* Removes the default link underline */
+            font-size: 1.3rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Hover Effect */
+        .category-link:hover {
+            background-color: #FF6B6B;;
+            border-color: #ffffff;
+            transform: scale(1.03);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+
+        /* Icon Size */
+        .material-icons {
+            font-size: 40px;
+        }
+
+        /* Mobile View: 1 column */
+        @media (max-width: 500px) {
+            .category-grid {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Categories</h1>
+
+    <div class="category-grid">
+        <a href="bollywood.html" class="category-link">
+            <img src ="bollywood logo.jfif" alt="Bollywood Buzz"width="50" height="50">Bollywood Buzz 
+        </a>
+        
+        <a href="memes.html" class="category-link">
+            <img src ="memes.png" alt="Memes and Internet Culture" width="60" height="60">Memes and Internet Culture
+        </a>
+        
+        <a href="world.html" class="category-link">
+            <img src ="world.png" alt="World Facts" width="60" height="50">World Facts
+        </a>
+        
+        <a href="food.html" class="category-link">
+            <img src ="food.png" alt="Foodie Quiz" width="50" height="50">Foodie Quiz
+        </a>
+        
+        <a href="Sports.html" class="category-link">
+            <img src ="sports.png" alt="Games" width="60" height="60">Sports
+        </a>
+        
+        <a href="tech.html" class="category-link">
+            <img src ="tech.png" alt="Technology" width="60" height="60">Technology
+        </a>
+    </div>
+
+</body>
+</html>
